@@ -52,6 +52,12 @@ recent_grads <- import(here("data", "recent-grads.csv"),
 women_stem <- import(here("data", "women-stem.csv"),
                setclass = "tbl_df") %>% 
                janitor::clean_names() 
+
+
+recent_grads <- recent_grads %>% 
+  mutate(major = str_to_title(major))
+
+head(recent_grads)
 ```
 
 # Plot 1
@@ -77,7 +83,10 @@ recent_grads %>%
 ```{r plot 1 version 1}
 ggplot(recent_grads, aes(major_category, median)) +
   geom_col() +
-  coord_flip()
+  coord_flip() +
+  theme(plot.title = element_text(hjust = 0.5),
+        axis.text = element_text(size = 10),
+        axis.title=element_text(size=10))
 ```
 
 ### Version 2
@@ -87,7 +96,10 @@ ggplot(recent_grads, aes(fct_reorder(major_category, median), median)) +
   geom_col() +
   geom_col(fill = "cornflowerblue",
   data = filter(recent_grads, major_category == "Education")) +  
-  coord_flip()
+  coord_flip() +
+  theme(plot.title = element_text(hjust = 0.5),
+        axis.text = element_text(size = 10),
+        axis.title=element_text(size=10))
 
 ```
 
@@ -106,7 +118,9 @@ ggplot(recent_grads, aes(median)) +
   labs(x = "Median Salary of College Majors",
        y = "Total",
        title = "Distribution of Median Salaries \nper College Major") +
-  theme(plot.title = element_text(hjust = 0.5))
+  theme(plot.title = element_text(hjust = 0.5),
+        axis.text = element_text(size = 10),
+        axis.title=element_text(size=10))
 
 ```
 
@@ -123,7 +137,9 @@ ggplot(recent_grads, aes(median, major_category)) +
   labs(x = "Median Salary Distribution", 
        y = "Major Category",
        title = "Distribution of Median Salaries \nby Major Category") +
-  theme(plot.title = element_text(hjust = 0.5))
+  theme(plot.title = element_text(hjust = 0.5),
+        axis.text=element_text(size=10),
+        axis.title=element_text(size=10))
 ```
 
 
@@ -152,7 +168,9 @@ ggplot(median_top_20, aes(fct_reorder(major, median), median)) +
         panel.grid.minor.x = element_blank(),
         panel.grid.major.x = element_line(color = "gray80")) +
   theme(plot.title = element_text(color = "black", size = 12, face = "bold", hjust = 0.5),
-        legend.position = "bottom") +
+        legend.position = "bottom",
+        axis.text=element_text(size=8),
+        axis.title=element_text(size=10)) +
   labs(x = "College Major",
        y = "Median Salary (Thousands)",
        fill = "Major Category",
@@ -184,7 +202,9 @@ ggplot(median_bottom_20, aes(fct_reorder(major, median), median)) +
         panel.grid.minor.x = element_blank(),
         panel.grid.major.x = element_line(color = "gray80")) +
   theme(plot.title = element_text(color = "black", size = 12, face = "bold", hjust = 0.5),
-        legend.position = "bottom") +
+        legend.position = "bottom",
+        axis.text=element_text(size=8),
+        axis.title=element_text(size=10)) +
   labs(x = "College Major",
        y = "Median Salary (Thousands)",
        fill = "Major Category",
@@ -210,7 +230,9 @@ p_1 <- ggplot(median_top_20, aes(fct_reorder(major, median), median)) +
         panel.grid.minor.x = element_blank(),
         panel.grid.major.x = element_line(color = "gray80")) +
   theme(plot.title = element_text(color = "black", size = 12, face = "bold", hjust = 0.5),
-        legend.position = "bottom") +
+        legend.position = "bottom",
+        axis.text=element_text(size=8),
+        axis.title=element_text(size=10)) +
   labs(x = "College Major",
        y = "Median Salary (Thousands)",
        fill = "Major Category",
@@ -233,7 +255,9 @@ p_2 <- ggplot(median_bottom_20, aes(fct_reorder(major, median), median)) +
         panel.grid.minor.x = element_blank(),
         panel.grid.major.x = element_line(color = "gray80")) +
   theme(plot.title = element_text(color = "black", size = 12, face = "bold", hjust = 0.5),
-        legend.position = "bottom") +
+        legend.position = "bottom",
+        axis.text=element_text(size=8),
+        axis.title=element_text(size=10)) +
   labs(x = "College Major",
        y = "Median Salary (Thousands)",
        fill = "Major Category",
@@ -287,12 +311,17 @@ plot_2_a <- percents_tidy %>%
 plot_2_b <- percents_tidy %>% 
   filter(median <= 40000,
          unemployment_rate_percentage >= 6.50)
+
+mod_1 <- lm(median ~ unemployment_rate_percentage, data = plot_2_a)
+mod_1
 ```
 
 ```{r plot 2 version 1}
 ggplot(plot_2_a, aes(unemployment_rate_percentage, median, color = major_category)) +
   geom_point(size = 2,
              alpha = 0.5) +
+  geom_hline(yintercept=65000, linetype="dashed", 
+                color = "black", size = 1) +
   scale_color_viridis_d(name = "Major Category") +
   theme(plot.title = element_text(color = "black", 
                                   size = 12, 
@@ -303,7 +332,9 @@ ggplot(plot_2_a, aes(unemployment_rate_percentage, median, color = major_categor
   scale_y_log10("Median Salary", labels = scales::dollar) +
   theme(panel.grid.major.y = element_blank(),
         panel.grid.minor.x = element_blank(),
-        panel.grid.major.x = element_line(color = "gray80")) +
+        panel.grid.major.x = element_line(color = "gray80"),
+        axis.text=element_text(size=10),
+        axis.title=element_text(size=10)) +
   labs(x = "Unemployment Rate Percentage",
        y = "Median Salary",
        title = "Comparison of Employment Rate to Median Salary",
@@ -324,7 +355,9 @@ ggplot(percents_tidy, aes(fct_reorder(major_category, unemployment_rate), unempl
         panel.grid.minor.x = element_blank(),
         panel.grid.major.x = element_line(color = "gray80")) +
   theme(plot.title = element_text(color = "black", size = 12, face = "bold", hjust = 0.5),
-        legend.position = "bottom") +
+        legend.position = "bottom",
+        axis.text=element_text(size=10),
+        axis.title=element_text(size=10)) +
   labs(x = "Major Category",
        title = "Unemployment Rates per Major Category") 
 
@@ -355,7 +388,9 @@ plot_2_c %>%
   scale_y_log10("Employment in College Major", labels = scales::percent) +
   theme(panel.grid.major.y = element_blank(),
         panel.grid.minor.x = element_blank(),
-        panel.grid.major.x = element_line(color = "gray80")) +
+        panel.grid.major.x = element_line(color = "gray80"),
+        axis.text=element_text(size=10),
+        axis.title=element_text(size=10)) +
   labs(x = "Unemployment Rate",
        y = "Employment in College Major",
        title = "Comparison of Unemployment Rate \nto College Major Employment Rate",
@@ -400,7 +435,9 @@ engineering_2 <- stem_tidy %>%
 ggplot(engineering, aes(fct_reorder(major, percent_women), percent_women)) +
   geom_col() +
   coord_flip() +
-  scale_y_continuous("Percentage of Women Employed", labels = scales::percent) 
+  scale_y_continuous("Percentage of Women Employed", labels = scales::percent) +
+  theme(axis.text=element_text(size=8),
+        axis.title=element_text(size=10))
 
 ```
 
@@ -414,7 +451,9 @@ ggplot(engineering, aes(fct_reorder(major, percent_women), percent_women)) +
             size = 3,
             color = "white") +
   coord_flip() +
-  scale_y_continuous("Percentage of Women Employed", labels = scales::percent) 
+  scale_y_continuous("Percentage of Women Employed", labels = scales::percent) +
+  theme(axis.text=element_text(size=8),
+        axis.title=element_text(size=10))
 
 ```
 
@@ -446,7 +485,9 @@ ggplot(stem_percentages, aes(percent_women, percent_men)) +
   scale_y_log10("Percent Men Employed", labels = scales::percent) +
   theme(panel.grid.major.y = element_blank(),
         panel.grid.minor.x = element_blank(),
-        panel.grid.major.x = element_line(color = "gray80")) +
+        panel.grid.major.x = element_line(color = "gray80"),
+        axis.text=element_text(size=10),
+        axis.title=element_text(size=10)) +
   theme(plot.title = element_text(color = "black", 
                                   size = 12, 
                                   face = "bold", 
@@ -474,6 +515,8 @@ table %>%
   fmt_percent(vars(percent_women, percent_men), decimals = 0) %>% 
   fmt_currency(vars(median), currency = "USD") %>% 
   cols_align(align = "left", columns = vars(major)) %>% 
+  tab_options(container.overflow.x = "scroll",
+              container.overflow.y = "scroll") %>% 
   tab_source_note(source_note = md("Data from [fivethirtyeight](https://https://github.com/fivethirtyeight/data/tree/master/college-majors)"))
 ```
 
